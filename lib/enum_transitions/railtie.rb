@@ -1,3 +1,5 @@
+require "rails/railtie"
+
 module EnumTransitions
   class Railtie < ::Rails::Railtie
     ActiveSupport.on_load :active_record do

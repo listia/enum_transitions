@@ -4,19 +4,14 @@ describe EnumTransitions do
   let(:model_class) do
     Class.new(ActiveRecord::Base) do
       self.table_name = "enum_state_models"
-    end
-  end
 
-
-  before do
-    model_class.enum(
-      state: {
+      enum state: {
         pending: 0,
         processing: 1,
         completed: 2,
         failed: 3
       }
-    )
+    end
   end
 
   context ".enum_transitions" do
@@ -53,6 +48,16 @@ describe EnumTransitions do
         model.processing!
 
         expect(model.processing?).to eq(true)
+      end
+    end
+
+    context "transition query methods" do
+      it "verifies that the transition is valid" do
+        model_class.enum_transitions(state: { pending: :processing })
+        model = model_class.new
+
+        expect(model.transitions_to_processing?).to eq(true)
+        expect(model.transitions_to_completed?).to eq(false)
       end
     end
   end

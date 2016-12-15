@@ -36,7 +36,7 @@ end
 
 Then when you call the transition methods (provided by `ActiveRecord::Enum`), an error will raise if the transition is invalid:
 
-```
+```ruby
 car = Car.create!
 car.drive! #=> car.state == :drive
 car.reverse! #=> raises EnumTransitions::InvalidTransition
