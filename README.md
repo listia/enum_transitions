@@ -1,4 +1,6 @@
 # EnumTransitions
+[![Build Status](https://travis-ci.org/listia/enum_transitions.svg?branch=master)](https://travis-ci.org/listia/enum_transitions)
+[![Gem Version](https://badge.fury.io/rb/enum_transitions.svg)](http://badge.fury.io/rb/enum_transitions)
 
 Rails provides [ActiveRecord::Enum](http://api.rubyonrails.org/classes/ActiveRecord/Enum.html) which is great for state machines. The only problem is that it doesn't provide built-in validations for transitions.
 
