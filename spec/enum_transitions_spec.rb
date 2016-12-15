@@ -37,12 +37,12 @@ describe EnumTransitions do
     end
 
     context "when transition is not defined" do
-      it "raises InvalidEnumTransition error" do
+      it "raises InvalidTransition error" do
         expect {
           model_class.enum_transitions(state: { pending: :processing })
           model = model_class.new
           model.completed!
-        }.to raise_error(EnumTransitions::InvalidEnumTransition, "Cannot transition state from `pending` to `completed`")
+        }.to raise_error(EnumTransitions::InvalidTransition, "Cannot transition state from `pending` to `completed`")
       end
     end
 

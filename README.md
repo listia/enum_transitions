@@ -1,8 +1,6 @@
 # EnumTransitions
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/enum_transitions`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Rails provides [ActiveRecord::Enum](http://api.rubyonrails.org/classes/ActiveRecord/Enum.html) which is great for state machines. The only problem is that it doesn't provide built-in validations for transitions.
 
 ## Installation
 
@@ -22,7 +20,31 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+For example, let's say you have a `Car` model:
+
+```ruby
+class Car < ApplicationRecord
+  enum state: [ :parked, :drive, :reverse ]
+
+  enum_transitions state: {
+    parked: [ :drive, :reverse ],
+    drive: :parked,
+    reverse: :parked
+  }
+end
+```
+
+Then when you call the transition methods (provided by `ActiveRecord::Enum`), an error will raise if the transition is invalid:
+
+```
+car = Car.create!
+car.drive! #=> car.state == :drive
+car.reverse! #=> raises EnumTransitions::InvalidTransition
+
+car.transitions_to_reverse? #=> false
+car.transitions_to_parked? #=> true
+```
+
 
 ## Development
 
@@ -32,5 +54,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/enum_transitions.
+Bug reports and pull requests are welcome on GitHub at https://github.com/listia/enum_transitions.
 

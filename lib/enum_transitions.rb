@@ -1,7 +1,7 @@
 require "enum_transitions/version"
 
 module EnumTransitions
-  InvalidEnumTransition = Class.new(StandardError)
+  InvalidTransition = Class.new(StandardError)
 
   def self.extended(mod)
     mod.class_eval do
@@ -41,7 +41,7 @@ module EnumTransitions
         mod.module_eval do
           define_method("#{state}!") {
             unless public_send("transitions_to_#{state}?")
-              raise InvalidEnumTransition, "Cannot transition #{name} from `#{public_send(name)}` to `#{state}`"
+              raise InvalidTransition, "Cannot transition #{name} from `#{public_send(name)}` to `#{state}`"
             end
             super()
           }
