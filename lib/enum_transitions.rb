@@ -3,36 +3,14 @@ require "enum_transitions/version"
 module EnumTransitions
   InvalidTransition = Class.new(StandardError)
 
-  @@state_transition_logging = false
-  @@state_transition_logging_class = nil
-
   def self.extended(base)
     base.class_attribute(:defined_enum_transitions, instance_writer: false)
     base.defined_enum_transitions = {}
 
-    if state_transition_logging
-      base.after_save :log_state_transition
-    end
-  end
-
-  def self.state_transition_logging
-    @@state_transition_logging
-  end
-
-  def self.state_transition_logging_class
-    @@state_transition_logging_class
-  end
-
-  def self.state_transition_logging=(klass)
-    # false means no logging required
-    if klass == false
-      @@state_transition_logging = false
-    elsif !klass.ancestors.include?(ActiveRecord::Base)
-      raise "Logging class must be an ActiveRecord, or set it to `false` to disable logging."
-    else
-      @@state_transition_logging = true
-      @@state_transition_logging_class = klass
-    end
+    base.class_attribute(:_enum_transition_logging , instance_writer: false)
+    base.class_attribute(:_enum_transition_logging_class , instance_writer: false)
+    base._enum_transition_logging = false
+    base._enum_transition_logging_class = nil
   end
 
   def inherited(base)
@@ -79,17 +57,29 @@ module EnumTransitions
 
       defined_enum_transitions[name.to_s] = transition_values
 
-      if EnumTransitions.state_transition_logging
-        _enum_transitions_methods_module.module_eval do
-          define_method("log_state_transition") do
-            EnumTransitions.state_transition_logging_class.create!(
+      _enum_transitions_methods_module.module_eval do
+        define_method("_log_#{name}_transition") do
+          if _enum_transition_logging
+            _enum_transition_logging_class.create!(
               resource: self,
-              state: self.state,
-              previous_state: self.state_was
+              name: name,
+              state: self.defined_enums[name.to_s][self.public_send(:"#{name}")],
+              previous_state: self.defined_enums[name.to_s][self.public_send(:"#{name}_was")]
             )
           end
         end
       end
+
+      after_save :"_log_#{name}_transition"
+    end
+  end
+
+  def enum_transition_logging(klass)
+    if klass.ancestors.include?(ActiveRecord::Base)
+      _enum_transition_logging = true
+      _enum_transition_logging_class = klass
+    else
+      raise "Logging class must be an ActiveRecord, or set it to `false` to disable logging."
     end
   end
 
