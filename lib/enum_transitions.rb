@@ -6,6 +6,26 @@ module EnumTransitions
   def self.extended(base)
     base.class_attribute(:defined_enum_transitions, instance_writer: false)
     base.defined_enum_transitions = {}
+
+    if state_transition_logging
+      base.after_save :log_state_transition
+    end
+  end
+
+  def self.state_transition_logging
+    @state_transition_logging ||= false
+  end
+
+  def self.state_transition_logging=(klass)
+    # false means no logging required
+    if klass == false
+      @state_transition_logging = false
+    elsif !klass.is_a?(ActiveRecord::Base)
+      raise "Logging class must be an ActiveRecord, or set it to `false` to disable logging."
+    else
+      @state_transition_logging = true
+      @state_transition_logging_class = klass
+    end
   end
 
   def inherited(base)
@@ -51,6 +71,18 @@ module EnumTransitions
       end
 
       defined_enum_transitions[name.to_s] = transition_values
+
+      if state_transition_logging
+        _enum_transitions_methods_module.module_eval do
+          define_method("log_state_transition") do
+            @state_transition_logging_class.create!(
+              resource: self,
+              state: self.state,
+              previous_state: self.state_was
+            )
+          end
+        end
+      end
     end
   end
 
