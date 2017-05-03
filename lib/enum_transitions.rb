@@ -27,7 +27,7 @@ module EnumTransitions
     # false means no logging required
     if klass == false
       @@state_transition_logging = false
-    elsif !klass.is_a?(ActiveRecord::Base)
+    elsif !klass.ancestors.include?(ActiveRecord::Base)
       raise "Logging class must be an ActiveRecord, or set it to `false` to disable logging."
     else
       @@state_transition_logging = true
