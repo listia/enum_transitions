@@ -64,7 +64,8 @@ module EnumTransitions
               resource: self,
               name: name,
               state: self.defined_enums[name.to_s][self.public_send(:"#{name}")],
-              previous_state: self.defined_enums[name.to_s][self.public_send(:"#{name}_was")]
+              previous_state: self.defined_enums[name.to_s][self.public_send(:"#{name}_was")],
+              created_at: self.respond_to?(:updated_at) ? self.updated_at : Time.current
             )
           end
         end
