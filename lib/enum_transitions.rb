@@ -76,8 +76,8 @@ module EnumTransitions
 
   def enum_transition_logging(klass)
     if klass.ancestors.include?(ActiveRecord::Base)
-      _enum_transition_logging = true
-      _enum_transition_logging_class = klass
+      self._enum_transition_logging = true
+      self._enum_transition_logging_class = klass
     else
       raise "Logging class must be an ActiveRecord, or set it to `false` to disable logging."
     end
